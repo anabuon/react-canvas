@@ -1,59 +1,92 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState} from 'react'
 import Square from './Square'
-import fs from 'fs'
-
-// fs.readFile(file, 'utf8' , (err, data) => {
-//   if (err) {
-//     console.error(err)
-//     return
-//   }
-//   console.log(data)
-// })
 
 
-function App() {
+const App = () => {
 
- 
-const file = './input.txt'
-const array = fs.readFileSync(file).toString().split("\n");
-console.log(array);
+const [dataCalc, setDataCalc] = useState([])
+const [dataInput, setDataInput] = useState([])
 
+const width = 20
 
-
-const [data, setData] = useState([])
-
-
-const calc = () => {
-  const temp = []
-  let count = 1
-  let x = 6
-  let y = 3
-  for(let i = 0; i < 18; i++) {
-    temp.push( {x:count, y})
-    if(count === x) {
-      y -= 1
-      count = 1
-    } else {
-      count += 1
-    }
-  }
-  return temp
+const getIndex = (x, y) => {
+  return width*(y-1)+x-1
 }
+
+const drawLine = (x1, y1, x2, y2) => {
+
+        const isVertical = x1 === x2;
+        const isHorizontal = y1 === y2;
+        const createVector = (a, b) => [Math.min(a, b), Math.max(a, b)];
+
+        if (isVertical) {
+            let [start, end] = createVector(y1, y2);
+            for (let i = start; i <= end; ++i) {
+                getIndex(x1, i);
+            }
+        }
+
+        if (isHorizontal) {
+            let [start, end] = createVector(x1, x2);
+            for (let i = start; i <= end; ++i) {
+              getIndex(i, y1);
+            }
+        }
+   
+    }
+
 useEffect(()=> {
-  setData(calc())
+  const fetchData = async () => {
+    const data = await fetch('http://localhost:5000')
+    const result = await data.json()
+    setDataInput(result.readFile)
+
+    const arrayCanvas = dataInput[0]?.match(/\d+/g)
+    const [width, height] = arrayCanvas
+    const arr = new Array(width*height).fill('d')
+
+      setDataCalc(arr)
+
+    //1. достаем размер массива
+    //2. создаем массив на основе высоты и ширины
+    //3. начинаем обход по массиву из инпута
+    //4. и по первому элементу/букве мы вызываемфункцию для отрисовки фигуры
+    //5. по завершению цикла сетаем массив клеток в стейт
+  }
+
+  fetchData()
 }, [])
-console.log(data)
+
+// useEffect(() => {
+//  setDataCalc(calc)
+// }, [])
+
+console.log(dataCalc);
+const style = {
+  // width: `20*${arrayCanvas[0]}px`,
+  display: 'flex',
+  flexWrap: 'wrap',
+}
+// console.log(dataCalc);
 return (
 
-      <div style={{width: 20*6, height: 20*3}}>
-        {data.length > 0 ? data.map((el) => {
-          return (<Square x={el.x} y={el.y} key={`${el.x}${el.y}`}/>)}) 
+      <div style={style}>
+      {/* <div> */}
+        
+        {dataCalc.length > 0 ? dataCalc.map((el, index) => {
+          console.log(el)
+          // return el.map((square, index) => {
+            // console.log(square);
+             return (<Square key={index}/>)}) 
         : null}
-        
-        
       </div>
 
 );
 }
 
 export default App
+
+
+
+
+
