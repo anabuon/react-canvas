@@ -1,16 +1,17 @@
 import React from "react";
 
 const Square = (props) =>  {
-  // console.log(props);
+
   const style = {
     width: 40, 
     height: 40, 
     border: 'solid 1px black',
-    display: 'inline-block'
+    textAlign: 'center',
+    background: `${props.color}`
   }
   
       return (
-        <div style={style}>{props.x}</div>
+        <div style={style}>{props.text}</div>
       );
     
   }
