@@ -7,10 +7,10 @@ const App = () => {
 const [dataDraw, setDataDraw] = useState([])
 const [dataInput, setDataInput] = useState([])
 
-// const arrayCanvas = dataInput[0]?.match(/\d+/g)
-// const [width, height] = arrayCanvas
-const width = 20
-const height = 4
+const arrayCanvas = dataInput[0]?.match(/\d+/g)
+const [width, height] = arrayCanvas
+// const width = 20
+// const height = 4
 
 const arr = new Array(width*height).fill().map(e => ({text: '', color: ''}))
 
@@ -19,7 +19,7 @@ const getIndex = (x, y) => {
 }
 
 const drawLine = (x1, y1, x2, y2) => {
-
+      
         const isVertical = x1 === x2;
         const isHorizontal = y1 === y2;
         const createVector = (a, b) => [Math.min(a, b), Math.max(a, b)];
@@ -39,17 +39,18 @@ const drawLine = (x1, y1, x2, y2) => {
         }
    
     }
+    
 
     const drawRectangle = (x1, y1, x2, y2) => {
-      drawLine(x1, y1, x2, y1);
-      drawLine(x2, y1, x2, y2);
-      drawLine(x2, y2, x1, y2);
-      drawLine(x1, y2, x1, y1);
+      drawLine(x1, y1, x2, y1)
+      drawLine(x2, y1, x2, y2)
+      drawLine(x2, y2, x1, y2)
+      drawLine(x1, y2, x1, y1)
     }
 
     const checkPoints = (...point) => {
-      const abs = point.filter((e, i) => !(i % 2));
-      const ord = point.filter((e, i) => i % 2);
+      const abs = point.filter((e, i) => !(i % 2))
+      const ord = point.filter((e, i) => i % 2)
   
       return (
           abs.every(e => e >= 1 && e <= width) &&
@@ -58,9 +59,9 @@ const drawLine = (x1, y1, x2, y2) => {
   };
 
     const fill = (x, y, color) => {
-          const point = { x: +x, y: +y };
-          const queue = [];
-          const checkPixels = {};
+          const point = { x: +x, y: +y }
+          const queue = []
+          const checkPixels = {}
           queue.push(point)
 
           if (color === 'o')  color = '#808000'
@@ -68,78 +69,51 @@ const drawLine = (x1, y1, x2, y2) => {
 
           while (queue.length) {
               let { x, y } = queue.pop();
-              const pixelKey = `${x}-${y}`;
+              const pixelKey = `${x}-${y}`
   
               if (checkPoints(x, y) && !checkPixels[pixelKey]) {
                   const pixel = arr[getIndex(x, y)].text
-                  checkPixels[pixelKey] = true;
+                  checkPixels[pixelKey] = true
   
                   if (pixel !== 'x') {
                       arr[getIndex(x, y)].color = color
-                      queue.push({ x: x + 1, y });
-                      queue.push({ x: x - 1, y });
-                      queue.push({ x, y: y + 1 });
-                      queue.push({ x, y: y - 1 });
+                      queue.push({ x: x + 1, y })
+                      queue.push({ x: x - 1, y })
+                      queue.push({ x, y: y + 1 })
+                      queue.push({ x, y: y - 1 })
                   }
               }
           }
-  };
-
-
-
-const dataNum = dataInput.map((e, index) => {
-  return e.match(/\d+/g)
-})
-
-const init = () => {
-  const arrayInput = dataInput
-  for (let i = 1; i <= arrayInput.length - 1; i++) {
-    // console.log(i);
-  const [x1, y1, x2, y2] = dataNum[i]
-  console.log(x1, y1, x2, y2);
-  
-
-    if (dataInput[i][0] === 'L') {
-      drawLine(x1, y1, x2, y2)
-    }
-    if (arrayInput[i][0] === 'R'){
-      drawRectangle(x1, y1, x2, y2)
-    }
-  //   // if (dataInput[i][0] === 'R') {
-  //   //   fill()
-  //   // }
-    fill(10, 3, 'o')
-    
-    }
-    // setDataDraw(arr)
   }
-  // useCallback(init(), [])
 
 useEffect(()=> {
   const fetchData = async () => {
     const data = await fetch('http://localhost:5000')
     const result = await data.json()
     setDataInput(result.readFile)
-    // setDataDraw(arr)
-  console.log(dataInput);
 
-  if(dataInput) init()
-    setDataDraw(arr)
-    // drawLine(1, 2, 6, 2)
-    // drawLine(6, 3, 6, 4)
-    // drawLine(7, 2, 15, 2)
-    // drawRectangle(16, 1, 20, 3)
-    // fill(10, 3, 'o')
-    // fill(5, 3, 'f')
-    // setDataDraw(arr)
+      const dataNum = dataInput.map((e, index) => {
+        return e.match(/[\dof]+/g)
+      })
 
+      for (let i = 1; i <= dataInput.length - 1; i++) {
+      const [x1, y1, x2, y2] = dataNum[i]
+      const [x, y, color] = dataNum[i]
      
+    
+        if (dataInput[i][0] === 'L') {
+          drawLine(+x1, +y1, +x2, +y2)
+        }
+        if (dataInput[i][0] === 'R'){
+          drawRectangle(+x1, +y1, +x2, +y2)
+        }
 
-    //1. достаем размер массива
-    //2. создаем массив на основе высоты и ширины
-    //3. начинаем обход по массиву из инпута
-    //4. и по первому элементу/букве мы вызываемфункцию для отрисовки фигуры
-    //5. по завершению цикла сетаем массив клеток в стейт
+        if (dataInput[i][0] === 'B') {
+          fill(x, y, color)
+        }
+      }
+        setDataDraw(arr)
+
   }
 
   fetchData()
@@ -170,3 +144,8 @@ export default App
 
 
 
+//1. достаем размер массива
+    //2. создаем массив на основе высоты и ширины
+    //3. начинаем обход по массиву из инпута
+    //4. и по первому элементу/букве мы вызываемфункцию для отрисовки фигуры
+    //5. по завершению цикла сетаем массив клеток в стейт
